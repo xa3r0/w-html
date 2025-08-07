@@ -63,4 +63,18 @@ This variant looks like a data visualization page and is ideal for environments 
 ---
 
 ## 📂 Folder Structure
+w-html/
+├── README.md
+└── tools/
+     ├── base64_qr_viewer.html
+     └── q3_graphview.html
 
+---
+
+## 📃 License
+
+MIT License — Use freely and responsibly.
+
+---
+
+Made with ❤️ by xa3r0
