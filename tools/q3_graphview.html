@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Q3 Performance Chart Viewer</title>
+  <style>
+    body { background: #1c1c1c; color: #00ff88; font-family: monospace; padding: 20px; }
+    h1 { color: #0ff; text-align: center; }
+    canvas { display: block; margin: 20px auto; border: 1px solid #333; background: #000; }
+    .container { text-align: center; }
+    .hidden { display: none; }
+    input, button { margin: 10px; font-size: 16px; padding: 5px 10px; background: #111; color: #0f0; border: 1px solid #0f0; }
+    #status { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Q3 Performance Chart Viewer</h1>
+
+  <div class="container">
+    <canvas id="barChart" width="400" height="150"></canvas>
+    <p>Upload quarterly pack to verify visual dataset:</p>
+    <input type="file" id="fileInput">
+    <button onclick="process()">Analyze</button>
+
+    <div id="qrWrapper" class="hidden">
+      <canvas id="qr" width="256" height="256"></canvas>
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <!-- QR Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+  <script>
+    // Animated fake bar chart
+    const canvas = document.getElementById("barChart");
+    const ctx = canvas.getContext("2d");
+    function drawGraph() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < 10; i++) {
+        const height = Math.random() * 100 + 20;
+        ctx.fillStyle = '#0f0';
+        ctx.fillRect(i * 40 + 10, 150 - height, 20, height);
+      }
+    }
+    setInterval(drawGraph, 1000);
+
+    // Base64 to QR
+    let chunks = [], current = 0;
+    const chunkSize = 1000;
+    const qr = new QRious({ element: document.getElementById('qr'), size: 256 });
+
+    function process() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return alert("No file selected.");
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const b64 = btoa(e.target.result);
+        chunks = b64.match(new RegExp('.{1,' + chunkSize + '}', 'g'));
+        current = 0;
+        document.getElementById("qrWrapper").classList.remove("hidden");
+        showQR();
+      };
+      reader.readAsBinaryString(file);
+    }
+
+    function showQR() {
+      if (current >= chunks.length) {
+        document.getElementById("status").innerText = "✅ All QR chunks displayed.";
+        return;
+      }
+      qr.value = chunks[current];
+      document.getElementById("status").innerText = `Displaying QR ${current + 1} / ${chunks.length}`;
+      current++;
+      setTimeout(showQR, 4000); // 4s delay
+    }
+  </script>
+</body>
+</html>
