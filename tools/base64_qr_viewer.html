@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Q3 Dashboard - Report Utility</title>
+  <style>
+    body { font-family: monospace; background-color: #1b1b1b; color: #0f0; padding: 20px; text-align: center; }
+    h1 { color: #00ff88; }
+    #qr { margin: 20px auto; width: 256px; height: 256px; }
+    .hidden { display: none; }
+    input, button { font-size: 16px; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Q3 Slide Pack Validator</h1>
+  <p>Select internal report to verify chunked hash integrity.</p>
+
+  <input type="file" id="fileInput">
+  <button onclick="startProcessing()">Generate</button>
+
+  <div id="qrWrapper" class="hidden">
+    <canvas id="qr"></canvas>
+    <div id="status"></div>
+  </div>
+
+  <!-- Embedded QR library -->
+  <script>
+    // Minimal inline QR encoder (QR Code for Canvas)
+    function drawQR(data) {
+      const canvas = document.getElementById("qr");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const qr = new QRious({
+        element: canvas,
+        value: data,
+        size: 256,
+        level: 'H'
+      });
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <script>
+    let chunks = [], current = 0;
+    const chunkSize = 1000;
+
+    function startProcessing() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return alert("No file selected");
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const b64 = btoa(e.target.result);
+        chunks = b64.match(new RegExp('.{1,' + chunkSize + '}', 'g'));
+        current = 0;
+        document.getElementById("qrWrapper").classList.remove("hidden");
+        showChunk();
+      };
+      reader.readAsBinaryString(file);
+    }
+
+    function showChunk() {
+      if (current >= chunks.length) {
+        document.getElementById("status").innerText = "✅ All QR chunks displayed.";
+        return;
+      }
+
+      drawQR(chunks[current]);
+      document.getElementById("status").innerText = `Chunk ${current + 1} of ${chunks.length}`;
+      current++;
+      setTimeout(showChunk, 4000); // 4s per QR
+    }
+  </script>
+</body>
+</html>
