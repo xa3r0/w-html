@@ -71,6 +71,11 @@ w-html/
 
 ---
 
+## 🕶️ .v2 loading soon
+*New modules are being prepped for deployment...*
+
+---
+
 ## 📃 License
 
 MIT License — Use freely and responsibly.
@@ -78,3 +83,5 @@ MIT License — Use freely and responsibly.
 ---
 
 Made with ❤️ by xa3r0
+
+
