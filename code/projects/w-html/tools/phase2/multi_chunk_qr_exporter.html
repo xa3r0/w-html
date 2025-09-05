@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-Chunk QR Export</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+</head>
+<body>
+  <h2>QR Chunk Export</h2>
+  <textarea id="inputData" rows="10" cols="80" placeholder="Paste your base64 blob here..."></textarea><br><br>
+  <button onclick="generateChunks()">Generate QR Chunks</button>
+  <div id="qrs"></div>
+
+  <script>
+    function generateChunks() {
+      const data = document.getElementById("inputData").value;
+      const chunkSize = 1000;
+      const qrsDiv = document.getElementById("qrs");
+      qrsDiv.innerHTML = "";
+
+      for (let i = 0; i < data.length; i += chunkSize) {
+        const chunk = data.slice(i, i + chunkSize);
+        const qr = qrcode(0, 'M');
+        qr.addData(chunk);
+        qr.make();
+        const qrImg = document.createElement('div');
+        qrImg.innerHTML = qr.createImgTag(6);
+        qrsDiv.appendChild(qrImg);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Encrypted QR Exporter</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #121212;
+      color: #00ff88;
+      padding: 2em;
+    }
+    input, button {
+      margin-top: 1em;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 0.5em;
+    }
+    canvas {
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔐 Encrypted QR Exporter</h2>
+  <input type="file" id="fileInput" />
+  <br />
+  <input type="password" id="password" placeholder="Enter password to encrypt" />
+  <br />
+  <button onclick="processFile()">Encrypt & Convert to QR</button>
+  <div id="qrContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    function chunkString(str, length) {
+      return str.match(new RegExp('.{1,' + length + '}', 'g'));
+    }
+
+    async function processFile() {
+      const file = document.getElementById('fileInput').files[0];
+      const password = document.getElementById('password').value;
+      const reader = new FileReader();
+
+      reader.onload = async function (e) {
+        const contents = e.target.result;
+        const encrypted = CryptoJS.AES.encrypt(contents, password).toString();
+        const chunks = chunkString(encrypted, 200);
+
+        const qrContainer = document.getElementById('qrContainer');
+        qrContainer.innerHTML = '';
+
+        for (let i = 0; i < chunks.length; i++) {
+          const canvas = document.createElement('canvas');
+          const chunkData = `chunk-${i + 1}/${chunks.length}:${chunks[i]}`;
+          await QRCode.toCanvas(canvas, chunkData, { errorCorrectionLevel: 'H' });
+          qrContainer.appendChild(canvas);
+        }
+      };
+
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
